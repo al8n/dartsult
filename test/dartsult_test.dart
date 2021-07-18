@@ -65,6 +65,8 @@ void main() {
 
     Error expectErr1 = Error(error: MockException('cannot get void value'));
 
+    Error expectErr2 = Error(error: MockException('from another error'), from: expectErr1);
+
     test('Test int result with ok', () async {
       Result intRst = await intResult(false);
       expect(intRst.isOk(), true);
@@ -98,6 +100,11 @@ void main() {
       expect(voidErrRst.containsError(expectErr1), true);
       expect(voidErrRst.unwrapOr(Void()), Void());
       expect(voidErrRst.unwrapOrElse(() => Void()), Void());
+    });
+
+    test('Test to String', () async {
+      expect(expectErr1.toString(), '{error: MockException(cannot get void value), from: null}');
+      expect(expectErr2.toString(), '{error: MockException(from another error), from: {error: MockException(cannot get void value), from: null}}');
     });
   });
 }

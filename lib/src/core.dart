@@ -54,13 +54,9 @@ class Error {
 
   @override
   String toString() {
-    if (from != null) {
-      return 'error: ${error?.toString()}\nfrom: ${from!.toString()}';
-    }
-
     return <String, dynamic>{
-      'error': error,
-      'from': from,
+      'error': error.toString(),
+      'from': from.toString(),
     }.toString();
   }
 
@@ -121,9 +117,8 @@ class Void {
     return other is Void;
   }
 
-  @override
-
   /// All [Void] instance should equal.
+  @override
   int get hashCode => 0;
 }
 
