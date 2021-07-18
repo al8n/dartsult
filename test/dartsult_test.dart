@@ -61,11 +61,14 @@ Future<T> mockLogic<T>(T val, String msg, {bool shouldPanic = false}) {
 
 void main() {
   group('dartsult tests', () {
-    Error expectErr = Error(error: MockException('cannot get int value'));
+    MockException mock = MockException('cannot get int value');
+    Error expectErr = Error(error: mock);
 
+    MockException mock1 = MockException('cannot get void value');
     Error expectErr1 = Error(error: MockException('cannot get void value'));
 
-    Error expectErr2 = Error(error: MockException('from another error'), from: expectErr1);
+    MockException mock2 = MockException('from another error');
+    Error expectErr2 = Error(error: mock2, from: expectErr1);
 
     test('Test int result with ok', () async {
       Result intRst = await intResult(false);
@@ -102,9 +105,20 @@ void main() {
       expect(voidErrRst.unwrapOrElse(() => Void()), Void());
     });
 
-    test('Test to String', () async {
+    test('Test Error toString, hashCode', () async {
       expect(expectErr1.toString(), '{error: MockException(cannot get void value), from: null}');
       expect(expectErr2.toString(), '{error: MockException(from another error), from: {error: MockException(cannot get void value), from: null}}');
+      expect(expectErr2.hashCode, mock2.hashCode ^ expectErr1.hashCode);
+    });
+
+    test('Test Ok toString, hashCode', () async {
+      Ok<int> okint = Ok(5);
+      expect(okint.toString(), 'Ok(5)');
+      expect(okint.hashCode, 5.hashCode);
+    });
+
+    test('Test Void to hashcode', () async {
+      expect(Void().hashCode, 0);
     });
   });
 }
