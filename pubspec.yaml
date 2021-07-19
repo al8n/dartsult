@@ -1,10 +1,9 @@
 name: dartsult
 description: A library implements Rust style [Result] for Dart error handle.
-version: 0.0.1
+version: 0.1.0
 homepage: https://github.com/al8n/dartsult
 repository: https://github.com/al8n/dartsult
-authors:
-  - Al Liu
+
 
 
 environment:

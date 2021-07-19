@@ -1,4 +1,5 @@
 import 'package:dartsult/dartsult.dart';
+import 'package:dartsult/src/core.dart';
 import 'package:test/test.dart';
 
 class MockException implements Exception {
@@ -23,27 +24,28 @@ class MockException implements Exception {
   }
 
   @override
-  // TODO: implement hashCode
   int get hashCode => msg.hashCode;
 }
 
-Future<Result> voidResult(bool shouldPanic) async {
+Future<Result<Void, MockException>> voidResult(bool shouldPanic) async {
   return await mockLogic(null, 'cannot get void value',
           shouldPanic: shouldPanic)
       .then(
-    (value) => Result(ok: Ok(Void())),
+    (value) => Result.ok<Void, MockException>(Void()),
     onError: (error, stackTrace) =>
-        Result(error: Error(error: error, stackTrace: stackTrace)),
+        Result.error<Void, MockException>(
+          error,
+        ),
   );
 }
 
-Future<Result> intResult(bool shouldPanic) async {
+Future<Result<int, MockException>> intResult(bool shouldPanic) async {
   return await mockLogic<int>(5, 'cannot get int value',
           shouldPanic: shouldPanic)
       .then(
-    (value) => Result(ok: Ok(value)),
-    onError: (error, stackTrace) => Result(
-      error: Error(error: error, stackTrace: stackTrace),
+    (value) => Result.ok<int, MockException>(value),
+    onError: (error, stackTrace) => Result.error<int, MockException>(
+      error,
     ),
   );
 }
@@ -62,13 +64,10 @@ Future<T> mockLogic<T>(T val, String msg, {bool shouldPanic = false}) {
 void main() {
   group('dartsult tests', () {
     MockException mock = MockException('cannot get int value');
-    Error expectErr = Error(error: mock);
 
     MockException mock1 = MockException('cannot get void value');
-    Error expectErr1 = Error(error: MockException('cannot get void value'));
 
     MockException mock2 = MockException('from another error');
-    Error expectErr2 = Error(error: mock2, from: expectErr1);
 
     test('Test int result with ok', () async {
       Result intRst = await intResult(false);
@@ -79,11 +78,11 @@ void main() {
     });
 
     test('Test int result with error', () async {
-      Result intErrRst = await intResult(true);
+      Result<int, MockException> intErrRst = await intResult(true);
       expect(intErrRst.isError(), true);
-      expect(intErrRst.unwrapError().error.toString(),
+      expect(intErrRst.unwrapError().toString(),
           'MockException(cannot get int value)');
-      expect(intErrRst.containsError(expectErr), true);
+      expect(intErrRst.containsError(mock), true);
       expect(intErrRst.unwrapOr(6), 6);
       expect(intErrRst.unwrapOrElse(() => 7), 7);
     });
@@ -98,23 +97,52 @@ void main() {
     test('Test void result with error', () async {
       Result voidErrRst = await voidResult(true);
       expect(voidErrRst.isError(), true);
-      expect(voidErrRst.unwrapError().error.toString(),
+      expect(voidErrRst.unwrapError().toString(),
           'MockException(cannot get void value)');
-      expect(voidErrRst.containsError(expectErr1), true);
+      expect(voidErrRst.containsError(mock1), true);
       expect(voidErrRst.unwrapOr(Void()), Void());
       expect(voidErrRst.unwrapOrElse(() => Void()), Void());
     });
 
-    test('Test Error toString, hashCode', () async {
-      expect(expectErr1.toString(), '{error: MockException(cannot get void value), from: null}');
-      expect(expectErr2.toString(), '{error: MockException(from another error), from: {error: MockException(cannot get void value), from: null}}');
-      expect(expectErr2.hashCode, mock2.hashCode ^ expectErr1.hashCode);
+    test('Test map', () {
+      Result<int, String> x = Result.ok<int, String>(1);
+      var v = x.map<String>((p0) => Result.ok('foo'));
+      expect(v.unwrap(), 'foo');
+    });
+
+    test('test mapError', () async {
+      var x = await intResult(true);
+      expect(x.mapError((err) => err.msg).toString(), 'Error(${mock.msg})');
+    });
+
+    test('Test mapOr', () {
+      Result<dynamic, String> x = Result.ok<dynamic, String>("foo");
+      int val = x.mapOr<int>(42, (v) => v.length);
+      expect(val, 3);
+
+      Result<String, dynamic> y = Result.error<String, dynamic>("bar");
+      int val1 = y.mapOr<int>(42, (v) => v.length);
+      expect(val1, 42);
+    });
+
+    test('Test mapOrElse', () {
+      int k = 21;
+
+      Result<dynamic, String> x = Result.ok<dynamic, String>("foo");
+      int val = x.mapOrElse<int>((v) => k * 2, (v) => v.length);
+      expect(val, 3);
+
+      Result<String, dynamic> y = Result.error<String, dynamic>("bar");
+      int val1 = y.mapOrElse<int>((v) => k * 2, (v) => v.length);
+      expect(val1, 42);
+
     });
 
     test('Test Ok toString, hashCode', () async {
-      Ok<int> okint = Ok(5);
+      Result<int, String> okint = Result.ok(5);
+      Result<int, String> okint1 = Result.ok(5);
       expect(okint.toString(), 'Ok(5)');
-      expect(okint.hashCode, 5.hashCode);
+      expect(okint, okint1);
     });
 
     test('Test Void to hashcode', () async {

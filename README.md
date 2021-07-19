@@ -34,23 +34,27 @@ class MockException implements Exception {
   int get hashCode => msg.hashCode;
 }
 
-Future<Result> voidResult(bool shouldPanic) async {
+Future<Result<Void, MockException>> voidResult(bool shouldPanic) async {
   return await mockLogic(null, 'cannot get void value',
       shouldPanic: shouldPanic)
       .then(
-        (value) => Result(ok: Ok(Void())),
+        (value) => Result.ok<Void, MockException>(Void()),
     onError: (error, stackTrace) =>
-        Result(error: Error(error: error, stackTrace: stackTrace)),
+        Result.error<Void, MockException>(
+          error,
+          stackTrace: stackTrace,
+        ),
   );
 }
 
-Future<Result> intResult(bool shouldPanic) async {
+Future<Result<int, MockException>> intResult(bool shouldPanic) async {
   return await mockLogic<int>(5, 'cannot get int value',
       shouldPanic: shouldPanic)
       .then(
-        (value) => Result(ok: Ok(value)),
-    onError: (error, stackTrace) => Result(
-      error: Error(error: error, stackTrace: stackTrace),
+        (value) => Result.ok<int, MockException>(value),
+    onError: (error, stackTrace) => Result.error<int, MockException>(
+      error,
+      stackTrace: stackTrace,
     ),
   );
 }
@@ -67,17 +71,22 @@ Future<T> mockLogic<T>(T val, String msg, {bool shouldPanic = false}) {
 }
 
 void main() async {
+
+  MockException mock = MockException('cannot get int value');
+  MockException mock1 = MockException('cannot get void value');
+  MockException mock2 = MockException('from another error');
+
   Result intRst = await intResult(false);
   assert(intRst.isOk());
   assert(intRst.unwrap() == 5);
   assert(intRst.contains(5));
+  assert(intRst.contains(6) == false);
 
-  Error expectErr = Error(error: MockException('cannot get int value'));
-  Result intErrRst = await intResult(true);
-  assert(intErrRst.isError());
-  assert(intErrRst.unwrapError().error.toString() ==
+  Result<int, MockException> intErrRst = await intResult(true);
+  assert(intErrRst.isError(), true);
+  assert(intErrRst.unwrapError().toString() ==
       'MockException(cannot get int value)');
-  assert(intErrRst.containsError(expectErr));
+  assert(intErrRst.containsError(mock));
   assert(intErrRst.unwrapOr(6) == 6);
   assert(intErrRst.unwrapOrElse(() => 7) == 7);
 
@@ -86,18 +95,15 @@ void main() async {
   assert(voidRst.unwrap() == Void());
   assert(voidRst.contains(Void()));
 
-  Error expectErr1 = Error(error: MockException('cannot get void value'));
   Result voidErrRst = await voidResult(true);
-  assert(voidErrRst.isError());
-  assert(voidErrRst.unwrapError().error.toString() ==
+  assert(voidErrRst.isError(), true);
+  assert(voidErrRst.unwrapError().toString() ==
       'MockException(cannot get void value)');
-  assert(voidErrRst.containsError(expectErr1));
+  assert(voidErrRst.containsError(mock1));
   assert(voidErrRst.unwrapOr(Void()) == Void());
   assert(voidErrRst.unwrapOrElse(() => Void()) == Void());
 }
-
 ```
-
 
 ## TODO
 1. Implements `Option` class
@@ -109,8 +115,4 @@ void main() async {
     - [ ] `or_else`
     - [ ] `and` 
     - [ ] `and_then`
-    - [ ] `map`
-    - [ ] `map_err`
-    - [ ] `map_or` 
-    - [ ] `map_or_else`
     - [ ] `iter`
