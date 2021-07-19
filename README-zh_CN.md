@@ -5,7 +5,7 @@
 
 `dartsult` is a library for developers who want to handle error in Rust style.
 
-English | [简体中文](README-zh_CN.md)
+[English](README.md) | 简体中文
 
 [<img alt="github" src="https://img.shields.io/badge/GITHUB-dartsult-8da0cb?style=for-the-badge&logo=Github" height="22">][Github-url]
 [<img alt="pub package" src="https://img.shields.io/pub/v/dartsult.svg?style=for-the-badge&logo=dart&color=5ab5f0" height="22">][package-url]
