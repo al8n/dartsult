@@ -1,3 +1,5 @@
+## 0.1.3
+- fix `meta` dependency conflict with `flutter_test`
 ## 0.1.2
 - add detailed comments for methods in `Result`
 - add more test cases

@@ -129,11 +129,9 @@ void main() async {
 2. Implements below methods for `Result`
     - [ ] `Option<T> ok()` 
     - [ ] `Option<E> err()`
-    - [ ] `or`
-    - [ ] `or_else`
-    - [ ] `and` 
-    - [ ] `and_then`
     - [ ] `iter`
+   
+3. Implements `Either` class
 
 #### License
 

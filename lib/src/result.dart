@@ -14,6 +14,7 @@ enum ResultType {
 }
 
 /// [_Ok], representing success and containing a value.
+@immutable
 class _Ok<T> {
   final T? val;
 
@@ -38,6 +39,7 @@ class _Ok<T> {
 }
 
 /// [_Error], representing error and containing an error value.
+@immutable
 class _Error<E> {
   final E? val;
 
