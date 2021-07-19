@@ -1,3 +1,7 @@
+## 0.1.2
+- add detailed comments for methods in `Result`
+- add more test cases
+- rename `core.dart` to `result.dart`
 ## 0.1.1
 - remove some documents
 - update README
