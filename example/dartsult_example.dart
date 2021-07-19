@@ -22,7 +22,6 @@ class MockException implements Exception {
   }
 
   @override
-  // TODO: implement hashCode
   int get hashCode => msg.hashCode;
 }
 

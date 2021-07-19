@@ -143,6 +143,10 @@ void main() {
       Result<int, String> okint1 = Result.ok(5);
       expect(okint.toString(), 'Ok(5)');
       expect(okint, okint1);
+      expect(okint.hashCode, "Ok".hashCode + 5.hashCode);
+
+      Result<int, String> errint = Result.error("asd");
+      expect(errint.hashCode, 'Error'.hashCode + 'asd'.hashCode);
     });
 
     test('Test Void to hashcode', () async {

@@ -186,16 +186,6 @@ class Result<T, E> {
   /// This function can be used to unpack a successful result
   /// while handling an error.
   ///
-  /// ## Examples
-  ///
-  /// Basic usage:
-  ///
-  /// ```dart
-  /// int k = 21;
-  ///
-  /// Result<dynamic, String> x = Result.ok<dynamic, String>("foo");
-  /// assert(x.mapOrElse((e) => k * 2, ());
-  /// ```
   U mapOrElse<U>(U Function(E err) defaultt, U Function(T val) op) {
     if (_ok.val != null) {
       return op(_ok.val!);
